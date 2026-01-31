@@ -1,12 +1,11 @@
-import { useState } from "react";
 import type { Todo, TodoStatus } from "@martian-todos/shared";
 import { formatDate, isOverdue } from "@martian-todos/shared";
-import { updateTodo, deleteTodo } from "../api/todos";
 
 interface TodoItemProps {
   todo: Todo;
-  token: string;
-  onUpdate: () => void;
+  isBusy: boolean;
+  onStatusChange: (todo: Todo, status: TodoStatus) => void;
+  onDelete: (todo: Todo) => void;
 }
 
 const STATUS_LABELS: Record<TodoStatus, string> = {
@@ -15,134 +14,71 @@ const STATUS_LABELS: Record<TodoStatus, string> = {
   completed: "Completed",
 };
 
-const PRIORITY_COLORS: Record<string, string> = {
-  low: "#4ade80",
-  medium: "#fbbf24",
-  high: "#f87171",
-};
-
 /**
  * Individual todo item with status toggle and delete.
  */
-export function TodoItem({ todo, token, onUpdate }: TodoItemProps) {
-  const [loading, setLoading] = useState(false);
-
-  async function handleStatusChange(status: TodoStatus) {
-    setLoading(true);
-    try {
-      await updateTodo(token, todo.id, { status });
-      onUpdate();
-    } catch (err) {
-      console.error("Failed to update todo:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (!confirm("Delete this todo?")) return;
-
-    setLoading(true);
-    try {
-      await deleteTodo(token, todo.id);
-      onUpdate();
-    } catch (err) {
-      console.error("Failed to delete todo:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
+export function TodoItem({ todo, isBusy, onStatusChange, onDelete }: TodoItemProps) {
   const isComplete = todo.status === "completed";
   const overdue = !isComplete && isOverdue(todo.dueDate);
 
   return (
-    <div
-      className="card"
-      style={{
-        opacity: loading ? 0.5 : isComplete ? 0.7 : 1,
-        display: "flex",
-        gap: "1rem",
-        alignItems: "flex-start",
-      }}
+    <article
+      className={`todo-item${isComplete ? " is-complete" : ""}${
+        isBusy ? " is-busy" : ""
+      }`}
+      aria-busy={isBusy}
     >
-      {/* Checkbox */}
-      <input
-        type="checkbox"
-        checked={isComplete}
-        onChange={() =>
-          handleStatusChange(isComplete ? "pending" : "completed")
-        }
-        disabled={loading}
-        style={{ width: 20, height: 20, marginTop: 4, cursor: "pointer" }}
-      />
+      {/* Status toggle */}
+      <div className="todo-item__check">
+        <input
+          type="checkbox"
+          checked={isComplete}
+          onChange={() =>
+            onStatusChange(todo, isComplete ? "pending" : "completed")
+          }
+          disabled={isBusy}
+          aria-label={`Mark ${todo.title} as ${
+            isComplete ? "pending" : "completed"
+          }`}
+        />
+      </div>
 
-      {/* Content */}
-      <div style={{ flex: 1 }}>
-        <h3
-          style={{
-            textDecoration: isComplete ? "line-through" : "none",
-            marginBottom: "0.5rem",
-          }}
-        >
-          {todo.title}
-        </h3>
+      {/* Main content */}
+      <div className="todo-item__content">
+        <div className="todo-item__title-row">
+          <h3>{todo.title}</h3>
+          {isBusy && <span className="todo-item__sync">Syncing</span>}
+        </div>
 
-        {todo.description && (
-          <p style={{ opacity: 0.7, marginBottom: "0.5rem" }}>
-            {todo.description}
-          </p>
-        )}
+        {todo.description && <p className="muted">{todo.description}</p>}
 
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          {/* Priority badge */}
-          <span
-            style={{
-              fontSize: "0.75rem",
-              padding: "2px 8px",
-              borderRadius: 4,
-              backgroundColor: PRIORITY_COLORS[todo.priority],
-              color: "#000",
-            }}
-          >
+        {/* Meta chips */}
+        <div className="todo-item__meta">
+          <span className={`badge badge--priority badge--${todo.priority}`}>
             {todo.priority}
           </span>
-
-          {/* Status */}
-          <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>
+          <span className={`chip chip--${todo.status}`}>
             {STATUS_LABELS[todo.status]}
           </span>
-
-          {/* Due date */}
           {todo.dueDate && (
-            <span
-              style={{
-                fontSize: "0.75rem",
-                color: overdue ? "#ff6b6b" : "inherit",
-                opacity: overdue ? 1 : 0.7,
-              }}
-            >
-              Due: {formatDate(todo.dueDate)}
+            <span className={`chip ${overdue ? "chip--overdue" : ""}`}>
+              Due {formatDate(todo.dueDate)}
               {overdue && " (overdue)"}
             </span>
           )}
         </div>
       </div>
 
-      {/* Delete button */}
+      {/* Delete action */}
       <button
-        onClick={handleDelete}
-        disabled={loading}
-        style={{
-          background: "transparent",
-          color: "#ff6b6b",
-          border: "none",
-          cursor: "pointer",
-          padding: "4px 8px",
-        }}
+        className="icon-button"
+        type="button"
+        onClick={() => onDelete(todo)}
+        disabled={isBusy}
+        aria-label={`Delete ${todo.title}`}
       >
         Delete
       </button>
-    </div>
+    </article>
   );
 }
