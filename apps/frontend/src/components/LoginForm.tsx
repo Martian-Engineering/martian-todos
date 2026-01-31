@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import type { AuthResponse } from "@martian-todos/shared";
 import { login, register } from "../api/auth";
 
@@ -20,16 +20,20 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    // Clear the previous error before attempting authentication.
     setError(null);
     setLoading(true);
 
     try {
+      // Choose the correct auth flow based on the current mode.
       const response = isRegister
         ? await register({ email, password, name })
         : await login({ email, password });
 
+      // Hand off the token and user to the auth hook.
       onLogin(response);
     } catch (err) {
+      // Surface API failures to the user.
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
@@ -37,78 +41,80 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   }
 
   return (
-    <div className="card">
-      <h2 style={{ marginBottom: "1rem" }}>
-        {isRegister ? "Create Account" : "Sign In"}
-      </h2>
+    <div className="auth-card">
+      <div className="auth-card__header">
+        <h2>{isRegister ? "Create Account" : "Sign In"}</h2>
+        <p className="muted">
+          {isRegister
+            ? "Start organizing mission-critical tasks."
+            : "Welcome back to Mission Control."}
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit}>
         {isRegister && (
-          <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="name" style={{ display: "block", marginBottom: "0.5rem" }}>
-              Name
-            </label>
+          <div className="form__group">
+            <label htmlFor="name">Name</label>
             <input
               id="name"
+              className="input"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required={isRegister}
-              style={{ width: "100%" }}
+              disabled={loading}
             />
           </div>
         )}
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label htmlFor="email" style={{ display: "block", marginBottom: "0.5rem" }}>
-            Email
-          </label>
+        <div className="form__group">
+          <label htmlFor="email">Email</label>
           <input
             id="email"
+            className="input"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{ width: "100%" }}
+            disabled={loading}
           />
         </div>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label htmlFor="password" style={{ display: "block", marginBottom: "0.5rem" }}>
-            Password
-          </label>
+        <div className="form__group">
+          <label htmlFor="password">Password</label>
           <input
             id="password"
+            className="input"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            style={{ width: "100%" }}
+            disabled={loading}
           />
         </div>
 
         {error && (
-          <p style={{ color: "#ff6b6b", marginBottom: "1rem" }}>{error}</p>
+          <p className="form__error" role="alert">
+            {error}
+          </p>
         )}
 
-        <button type="submit" disabled={loading} style={{ width: "100%", marginBottom: "1rem" }}>
+        <button
+          className="button-primary"
+          type="submit"
+          disabled={loading}
+        >
           {loading ? "Loading..." : isRegister ? "Create Account" : "Sign In"}
         </button>
       </form>
 
-      <p style={{ textAlign: "center", opacity: 0.7 }}>
+      <p className="auth-card__toggle">
         {isRegister ? "Already have an account? " : "Don't have an account? "}
         <button
+          className="button-link"
           type="button"
           onClick={() => setIsRegister(!isRegister)}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#646cff",
-            cursor: "pointer",
-            padding: 0,
-          }}
         >
           {isRegister ? "Sign In" : "Register"}
         </button>

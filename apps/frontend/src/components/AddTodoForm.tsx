@@ -1,15 +1,15 @@
-import { useState, FormEvent } from "react";
-import { createTodo } from "../api/todos";
+import { useState, type FormEvent, type RefObject } from "react";
+import type { CreateTodoInput } from "@martian-todos/shared";
 
 interface AddTodoFormProps {
-  token: string;
-  onAdd: () => void;
+  onCreate: (input: CreateTodoInput) => Promise<void>;
+  titleInputRef?: RefObject<HTMLInputElement>;
 }
 
 /**
  * Form for adding new todos.
  */
-export function AddTodoForm({ token, onAdd }: AddTodoFormProps) {
+export function AddTodoForm({ onCreate, titleInputRef }: AddTodoFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
@@ -20,20 +20,23 @@ export function AddTodoForm({ token, onAdd }: AddTodoFormProps) {
     e.preventDefault();
     if (!title.trim()) return;
 
+    // Keep the form state responsive while waiting for the API.
     setLoading(true);
     setError(null);
 
     try {
-      await createTodo(token, {
+      // Forward the form data to the parent for optimistic creation.
+      await onCreate({
         title: title.trim(),
         description: description.trim() || undefined,
         priority,
       });
+      // Clear the form so the user can add the next todo quickly.
       setTitle("");
       setDescription("");
       setPriority("medium");
-      onAdd();
     } catch (err) {
+      // Surface the error locally so the form can explain what failed.
       setError(err instanceof Error ? err.message : "Failed to create todo");
     } finally {
       setLoading(false);
@@ -41,43 +44,56 @@ export function AddTodoForm({ token, onAdd }: AddTodoFormProps) {
   }
 
   return (
-    <div className="card" style={{ marginBottom: "1.5rem" }}>
-      <h2 style={{ marginBottom: "1rem" }}>Add Todo</h2>
+    <section className="card card--elevated">
+      <div className="card__header">
+        <div>
+          <p className="eyebrow">New mission</p>
+          <h2>Add Todo</h2>
+          <p className="muted">Press N anywhere to jump here.</p>
+        </div>
+        <span className="pill">Quick add</span>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "1rem" }}>
+      <form className="form" onSubmit={handleSubmit}>
+        <div className="form__group">
+          <label htmlFor="todo-title">Title</label>
           <input
+            id="todo-title"
+            ref={titleInputRef}
+            className="input"
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(event) => setTitle(event.target.value)}
             placeholder="What needs to be done?"
             required
             maxLength={200}
-            style={{ width: "100%" }}
+            disabled={loading}
           />
         </div>
 
-        <div style={{ marginBottom: "1rem" }}>
+        <div className="form__group">
+          <label htmlFor="todo-description">Description</label>
           <textarea
+            id="todo-description"
+            className="textarea"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Description (optional)"
-            rows={2}
-            style={{ width: "100%", resize: "vertical" }}
+            onChange={(event) => setDescription(event.target.value)}
+            placeholder="Optional context, deadlines, or next steps"
+            rows={3}
+            disabled={loading}
           />
         </div>
 
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-          <label>
-            Priority:
+        <div className="form__row">
+          <label className="form__control">
+            <span>Priority</span>
             <select
+              className="select"
               value={priority}
-              onChange={(e) => setPriority(e.target.value as any)}
-              style={{
-                marginLeft: "0.5rem",
-                padding: "0.4rem",
-                borderRadius: 4,
-              }}
+              onChange={(event) =>
+                setPriority(event.target.value as "low" | "medium" | "high")
+              }
+              disabled={loading}
             >
               <option value="low">Low</option>
               <option value="medium">Medium</option>
@@ -85,15 +101,21 @@ export function AddTodoForm({ token, onAdd }: AddTodoFormProps) {
             </select>
           </label>
 
-          <button type="submit" disabled={loading || !title.trim()}>
+          <button
+            className="button-primary"
+            type="submit"
+            disabled={loading || !title.trim()}
+          >
             {loading ? "Adding..." : "Add Todo"}
           </button>
         </div>
 
         {error && (
-          <p style={{ color: "#ff6b6b", marginTop: "0.5rem" }}>{error}</p>
+          <p className="form__error" role="alert">
+            {error}
+          </p>
         )}
       </form>
-    </div>
+    </section>
   );
 }
