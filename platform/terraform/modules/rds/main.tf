@@ -114,13 +114,13 @@ resource "aws_db_instance" "main" {
   }
 }
 
-# Store password in Secrets Manager
-resource "aws_secretsmanager_secret" "db_password" {
-  name = "${var.name}/db-password"
+# Store database credentials in Secrets Manager
+resource "aws_secretsmanager_secret" "db_credentials" {
+  name = "${var.name}/db-credentials"
 }
 
-resource "aws_secretsmanager_secret_version" "db_password" {
-  secret_id = aws_secretsmanager_secret.db_password.id
+resource "aws_secretsmanager_secret_version" "db_credentials" {
+  secret_id = aws_secretsmanager_secret.db_credentials.id
   secret_string = jsonencode({
     username = var.db_username
     password = random_password.db.result
@@ -128,6 +128,16 @@ resource "aws_secretsmanager_secret_version" "db_password" {
     port     = 5432
     database = var.db_name
   })
+}
+
+# Store database URL in Secrets Manager (for app consumption)
+resource "aws_secretsmanager_secret" "database_url" {
+  name = "${var.name}/database-url"
+}
+
+resource "aws_secretsmanager_secret_version" "database_url" {
+  secret_id     = aws_secretsmanager_secret.database_url.id
+  secret_string = "postgresql://${var.db_username}:${random_password.db.result}@${aws_db_instance.main.address}:${aws_db_instance.main.port}/${var.db_name}"
 }
 
 # Outputs
@@ -151,6 +161,10 @@ output "security_group_id" {
   value = aws_security_group.rds.id
 }
 
-output "secret_arn" {
-  value = aws_secretsmanager_secret.db_password.arn
+output "db_credentials_secret_arn" {
+  value = aws_secretsmanager_secret.db_credentials.arn
+}
+
+output "database_url_secret_arn" {
+  value = aws_secretsmanager_secret.database_url.arn
 }
