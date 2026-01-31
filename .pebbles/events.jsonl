@@ -6,3 +6,13 @@
 {"type":"create","timestamp":"2026-01-31T22:29:05.819669Z","issue_id":"martian-todos-781","payload":{"description":"Enhance docker-compose.yml with hot-reloading for backend, volume mounts for development, and health checks. Add Redis for caching if needed.","priority":"2","title":"Set up Docker Compose for local dev","type":"task"}}
 {"type":"create","timestamp":"2026-01-31T22:29:06.765666Z","issue_id":"martian-todos-e97","payload":{"description":"Add Vitest for backend unit tests and React Testing Library for frontend. Create test fixtures, mock database utilities, and CI test workflow. Target 80% coverage.","priority":"2","title":"Add unit and integration tests","type":"task"}}
 {"type":"create","timestamp":"2026-01-31T22:29:07.750022Z","issue_id":"martian-todos-058","payload":{"description":"Add TODO comments, minor bugs, code smell examples, and opportunities for AI-assisted refactoring. Document these in a separate file for workshop facilitators.","priority":"2","title":"Add deliberately imperfect code for workshop demos","type":"task"}}
+{"type":"status_update","timestamp":"2026-01-31T22:34:24.642214Z","issue_id":"martian-todos-f34","payload":{"status":"in_progress"}}
+{"type":"status_update","timestamp":"2026-01-31T22:34:25.355158Z","issue_id":"martian-todos-74d","payload":{"status":"in_progress"}}
+{"type":"status_update","timestamp":"2026-01-31T22:34:30.841433Z","issue_id":"martian-todos-781","payload":{"status":"in_progress"}}
+{"type":"status_update","timestamp":"2026-01-31T22:34:32.833494Z","issue_id":"martian-todos-2ba","payload":{"status":"in_progress"}}
+{"type":"status_update","timestamp":"2026-01-31T22:34:35.587916Z","issue_id":"martian-todos-058","payload":{"status":"in_progress"}}
+{"type":"close","timestamp":"2026-01-31T22:37:33.847081Z","issue_id":"martian-todos-058","payload":{}}
+{"type":"close","timestamp":"2026-01-31T22:38:03.384698Z","issue_id":"martian-todos-781","payload":{}}
+{"type":"close","timestamp":"2026-01-31T22:40:07.46438Z","issue_id":"martian-todos-74d","payload":{}}
+{"type":"close","timestamp":"2026-01-31T22:44:28.515141Z","issue_id":"martian-todos-f34","payload":{}}
+{"type":"close","timestamp":"2026-01-31T22:47:31.787599Z","issue_id":"martian-todos-2ba","payload":{}}
