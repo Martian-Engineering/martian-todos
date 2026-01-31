@@ -58,6 +58,8 @@ make dev
 
 - `POST /auth/register` - Create account
 - `POST /auth/login` - Get JWT token
+- `POST /auth/refresh` - Refresh access token
+- `POST /auth/logout` - Revoke refresh token
 
 ### Todos (authenticated)
 

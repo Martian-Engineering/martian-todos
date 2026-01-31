@@ -17,6 +17,7 @@ const ConfigSchema = z.object({
   // JWT
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
   JWT_EXPIRES_IN: z.string().default("24h"),
+  JWT_REFRESH_EXPIRES_IN_DAYS: z.coerce.number().int().positive().default(30),
 });
 
 type Config = z.infer<typeof ConfigSchema>;
@@ -42,6 +43,7 @@ function loadConfig(): Config {
         DATABASE_URL: "postgresql://martian:martian_dev@localhost:5432/martian_todos",
         JWT_SECRET: "dev-secret-do-not-use-in-production-32chars",
         JWT_EXPIRES_IN: "24h",
+        JWT_REFRESH_EXPIRES_IN_DAYS: 30,
       };
     }
 
