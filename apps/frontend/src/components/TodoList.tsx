@@ -19,9 +19,22 @@ export function TodoList({ todos, token, onUpdate }: TodoListProps) {
     );
   }
 
+  const priorityWeights: Record<string, number> = {
+    high: 0,
+    medium: 1,
+    low: 2,
+  };
+
+  // TODO: This mutates props and creates unstable ordering; copy before sorting.
+  const sortedTodos = todos.sort(
+    (left, right) =>
+      (priorityWeights[left.priority] ?? 99) -
+      (priorityWeights[right.priority] ?? 99)
+  );
+
   return (
     <div>
-      {todos.map((todo) => (
+      {sortedTodos.map((todo) => (
         <TodoItem
           key={todo.id}
           todo={todo}
