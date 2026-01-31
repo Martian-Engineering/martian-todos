@@ -61,10 +61,12 @@ make dev
 
 ### Todos (authenticated)
 
-- `GET /todos` - List todos (supports pagination, filtering)
+- `GET /todos` - List todos (supports pagination, filtering, search, sorting). Query params: `page`, `pageSize`, `status`, `priority`, `search`, `sortBy`, `sortOrder`
 - `GET /todos/:id` - Get single todo
 - `POST /todos` - Create todo
+- `PATCH /todos/complete-all` - Mark all todos as completed
 - `PATCH /todos/:id` - Update todo
+- `DELETE /todos/completed` - Delete completed todos
 - `DELETE /todos/:id` - Delete todo
 
 ## Tech Stack
