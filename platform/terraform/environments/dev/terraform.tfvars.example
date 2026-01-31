@@ -1,0 +1,10 @@
+# Copy this file to terraform.tfvars and fill in values
+
+aws_region = "us-east-1"
+
+# Docker images (after pushing to ECR)
+backend_image  = "123456789012.dkr.ecr.us-east-1.amazonaws.com/martian-todos-backend:latest"
+frontend_image = "123456789012.dkr.ecr.us-east-1.amazonaws.com/martian-todos-frontend:latest"
+
+# JWT secret (generate a secure random string)
+jwt_secret = "your-super-secret-jwt-key-at-least-32-characters"

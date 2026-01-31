@@ -1,0 +1,46 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# dotenv environment variable files
+.env
+.env.*
+!.env.example
+
+# Build output
+dist
+.next
+out
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+
+# Local Claude config
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Worktrees
+.worktrees/
+
+# pebbles local state
+.pebbles/sync-state.json
+.pebbles/last-touched
