@@ -10,6 +10,11 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "AWS region for logs"
+  type        = string
+}
+
 variable "public_subnet_ids" {
   description = "Public subnet IDs for ALB"
   type        = list(string)
@@ -35,10 +40,14 @@ variable "database_url_secret_arn" {
   type        = string
 }
 
-variable "jwt_secret" {
-  description = "JWT signing secret"
+variable "jwt_secret_arn" {
+  description = "ARN of the JWT secret"
   type        = string
-  sensitive   = true
+}
+
+variable "certificate_arn" {
+  description = "ACM certificate ARN for HTTPS"
+  type        = string
 }
 
 # ECS Cluster
@@ -152,13 +161,31 @@ resource "aws_lb_listener" "http" {
   protocol          = "HTTP"
 
   default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn   = var.certificate_arn
+
+  default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.frontend.arn
   }
 }
 
 resource "aws_lb_listener_rule" "api" {
-  listener_arn = aws_lb_listener.http.arn
+  listener_arn = aws_lb_listener.https.arn
   priority     = 100
 
   action {
@@ -205,7 +232,10 @@ resource "aws_iam_role_policy" "secrets_access" {
       Action = [
         "secretsmanager:GetSecretValue"
       ]
-      Resource = [var.database_url_secret_arn]
+      Resource = [
+        var.database_url_secret_arn,
+        var.jwt_secret_arn
+      ]
     }]
   })
 }
@@ -241,20 +271,25 @@ resource "aws_ecs_task_definition" "backend" {
 
     environment = [
       { name = "NODE_ENV", value = "production" },
-      { name = "PORT", value = "3001" },
-      { name = "JWT_SECRET", value = var.jwt_secret },
+      { name = "PORT", value = "3001" }
     ]
 
-    secrets = [{
-      name      = "DATABASE_URL"
-      valueFrom = var.database_url_secret_arn
-    }]
+    secrets = [
+      {
+        name      = "DATABASE_URL"
+        valueFrom = var.database_url_secret_arn
+      },
+      {
+        name      = "JWT_SECRET"
+        valueFrom = var.jwt_secret_arn
+      }
+    ]
 
     logConfiguration = {
       logDriver = "awslogs"
       options = {
         "awslogs-group"         = aws_cloudwatch_log_group.backend.name
-        "awslogs-region"        = "us-east-1"
+        "awslogs-region"        = var.aws_region
         "awslogs-stream-prefix" = "ecs"
       }
     }
@@ -282,7 +317,7 @@ resource "aws_ecs_task_definition" "frontend" {
       logDriver = "awslogs"
       options = {
         "awslogs-group"         = aws_cloudwatch_log_group.frontend.name
-        "awslogs-region"        = "us-east-1"
+        "awslogs-region"        = var.aws_region
         "awslogs-stream-prefix" = "ecs"
       }
     }
@@ -341,4 +376,12 @@ output "ecs_security_group_id" {
 
 output "cluster_name" {
   value = aws_ecs_cluster.main.name
+}
+
+output "backend_service_name" {
+  value = aws_ecs_service.backend.name
+}
+
+output "frontend_service_name" {
+  value = aws_ecs_service.frontend.name
 }

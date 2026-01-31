@@ -2,9 +2,14 @@
 
 aws_region = "us-east-1"
 
-# Docker images (after pushing to ECR)
-backend_image  = "123456789012.dkr.ecr.us-east-1.amazonaws.com/martian-todos-backend:latest"
-frontend_image = "123456789012.dkr.ecr.us-east-1.amazonaws.com/martian-todos-frontend:latest"
+# Optional: override Docker image URIs
+# backend_image  = "123456789012.dkr.ecr.us-east-1.amazonaws.com/martian-todos-backend:latest"
+# frontend_image = "123456789012.dkr.ecr.us-east-1.amazonaws.com/martian-todos-frontend:latest"
 
 # JWT secret (generate a secure random string)
 jwt_secret = "your-super-secret-jwt-key-at-least-32-characters"
+
+# HTTPS configuration
+domain_name        = "todos.example.com"
+hosted_zone_id     = "Z1234567890ABC"
+# acm_certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/abc123"
