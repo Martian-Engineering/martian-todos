@@ -5,7 +5,7 @@
 #   make dev        # Start dev environment
 #   make build      # Build everything
 
-.PHONY: setup build dev clean db-up db-down migrate
+.PHONY: setup build dev clean db-up db-down migrate seed rollback
 
 # First-time development setup
 setup:
@@ -61,6 +61,14 @@ db-down:
 # Run database migrations
 migrate:
 	@cd apps/backend && pnpm migrate
+
+# Seed demo data
+seed:
+	@cd apps/backend && pnpm seed
+
+# Roll back the most recent migration (optional: make rollback ROLLBACK_COUNT=2)
+rollback:
+	@cd apps/backend && pnpm migrate:down -- $(ROLLBACK_COUNT)
 
 # Start full stack with Docker
 full:

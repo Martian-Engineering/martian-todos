@@ -48,6 +48,16 @@ export interface TodosTable {
 }
 
 // ============================================================================
+// Migrations Table
+// ============================================================================
+
+export interface MigrationsTable {
+  id: string;
+  name: string;
+  applied_at: ColumnType<Date, string | undefined, never>;
+}
+
+// ============================================================================
 // Database Interface
 // ============================================================================
 
@@ -59,4 +69,5 @@ export interface Database {
   users: UsersTable;
   refresh_tokens: RefreshTokensTable;
   todos: TodosTable;
+  migrations: MigrationsTable;
 }

@@ -10,7 +10,8 @@
     "dev": "tsx watch src/index.ts",
     "typecheck": "tsc --noEmit",
     "migrate": "tsx src/db/migrate.ts",
-    "migrate:down": "tsx src/db/migrate.ts down"
+    "migrate:down": "tsx src/db/migrate.ts down",
+    "seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
     "@martian-todos/shared": "workspace:*",
