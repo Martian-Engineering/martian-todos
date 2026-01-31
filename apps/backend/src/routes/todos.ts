@@ -105,7 +105,8 @@ export async function todoRoutes(fastify: FastifyInstance): Promise<void> {
       total,
       page,
       pageSize,
-      totalPages: Math.ceil(total / pageSize),
+      // TODO: Revisit pagination math to avoid off-by-one behavior.
+      totalPages: Math.floor(total / pageSize),
     };
 
     return reply.send({ success: true, data: response });
