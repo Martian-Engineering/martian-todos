@@ -9,7 +9,14 @@ import { z } from "zod";
  */
 export const CreateUserSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128, "Password must be at most 128 characters")
+    .regex(/[a-z]/, "Password must include a lowercase letter")
+    .regex(/[A-Z]/, "Password must include an uppercase letter")
+    .regex(/[0-9]/, "Password must include a number")
+    .regex(/[^A-Za-z0-9]/, "Password must include a symbol"),
   name: z.string().min(1, "Name is required"),
 });
 export type CreateUserInput = z.infer<typeof CreateUserSchema>;
@@ -22,6 +29,14 @@ export const LoginSchema = z.object({
   password: z.string(),
 });
 export type LoginInput = z.infer<typeof LoginSchema>;
+
+/**
+ * Schema for refresh token requests.
+ */
+export const RefreshTokenSchema = z.object({
+  refreshToken: z.string().min(32, "Refresh token is required"),
+});
+export type RefreshTokenInput = z.infer<typeof RefreshTokenSchema>;
 
 /**
  * Public user representation (no password).
@@ -146,5 +161,6 @@ export interface PaginatedResponse<T> {
  */
 export interface AuthResponse {
   token: string;
+  refreshToken: string;
   user: User;
 }

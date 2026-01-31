@@ -19,6 +19,19 @@ export interface UsersTable {
 }
 
 // ============================================================================
+// Refresh Tokens Table
+// ============================================================================
+
+export interface RefreshTokensTable {
+  id: Generated<string>;
+  user_id: string;
+  token_hash: string;
+  expires_at: Date;
+  revoked_at: Date | null;
+  created_at: ColumnType<Date, string | undefined, never>;
+}
+
+// ============================================================================
 // Todos Table
 // ============================================================================
 
@@ -44,5 +57,6 @@ export interface TodosTable {
  */
 export interface Database {
   users: UsersTable;
+  refresh_tokens: RefreshTokensTable;
   todos: TodosTable;
 }
