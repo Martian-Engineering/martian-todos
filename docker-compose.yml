@@ -20,6 +20,7 @@ services:
     build:
       context: .
       dockerfile: apps/backend/Dockerfile
+      target: builder
     depends_on:
       postgres:
         condition: service_healthy
@@ -30,6 +31,20 @@ services:
       PORT: 3001
     ports:
       - "3001:3001"
+    command: pnpm --filter @martian-todos/backend dev
+    volumes:
+      - ./apps/backend:/app/apps/backend
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     profiles:
       - full
 
@@ -37,10 +52,38 @@ services:
     build:
       context: .
       dockerfile: apps/frontend/Dockerfile
+      target: builder
     environment:
       VITE_API_URL: http://localhost:3001
     ports:
       - "5173:5173"
+    command: pnpm --filter @martian-todos/frontend dev -- --host 0.0.0.0 --port 5173
+    volumes:
+      - ./apps/frontend:/app/apps/frontend
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:5173/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - full
+
+  redis:
+    image: redis:7-alpine
+    container_name: martian-todos-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     profiles:
       - full
 
