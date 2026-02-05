@@ -1,5 +1,34 @@
 import { z } from "zod";
-import "dotenv/config";
+import fs from "node:fs";
+import path from "node:path";
+import dotenv from "dotenv";
+
+/**
+ * Loads environment variables from a project-level `.env` file when present.
+ *
+ * The repo's setup docs instruct creating `.env` at the monorepo root, but many
+ * backend scripts run with `cwd=apps/backend`. This loader makes both cases work.
+ */
+function loadDotEnv(): void {
+  const candidates = [
+    // `pnpm --filter @martian-todos/backend <script>` from repo root.
+    path.resolve(process.cwd(), ".env"),
+
+    // `cd apps/backend && pnpm <script>` (Makefile uses this for migrations/seed).
+    path.resolve(process.cwd(), "../../.env"),
+  ];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      // In local dev/workshops it's common to have DATABASE_URL exported in the shell
+      // for other projects; prefer the repo's `.env` when it exists.
+      dotenv.config({ path: candidate, override: true });
+      return;
+    }
+  }
+}
+
+loadDotEnv();
 
 /**
  * Environment configuration schema.
@@ -40,7 +69,7 @@ function loadConfig(): Config {
         PORT: 3001,
         NODE_ENV: "development",
         LOG_LEVEL: "debug",
-        DATABASE_URL: "postgresql://martian:martian_dev@localhost:5432/martian_todos",
+        DATABASE_URL: "postgresql://martian:martian_dev@127.0.0.1:5432/martian_todos",
         JWT_SECRET: "dev-secret-do-not-use-in-production-32chars",
         JWT_EXPIRES_IN: "24h",
         JWT_REFRESH_EXPIRES_IN_DAYS: 30,
