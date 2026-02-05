@@ -41,6 +41,7 @@ build:
 
 # Start development (backend + frontend)
 dev:
+	@pnpm --filter @martian-todos/shared build
 	@pnpm dev
 
 # Clean build artifacts
