@@ -89,3 +89,7 @@
 {"type":"dep_add","timestamp":"2026-02-05T22:47:33.690513Z","issue_id":"martian-todos-10a.4","payload":{"dep_type":"blocks","depends_on":"martian-todos-10a.2"}}
 {"type":"dep_add","timestamp":"2026-02-05T22:47:33.751316Z","issue_id":"martian-todos-10a.5","payload":{"dep_type":"blocks","depends_on":"martian-todos-10a.3"}}
 {"type":"dep_add","timestamp":"2026-02-05T22:47:33.808508Z","issue_id":"martian-todos-10a.5","payload":{"dep_type":"blocks","depends_on":"martian-todos-10a.2"}}
+{"type":"status_update","timestamp":"2026-02-05T22:50:34.946303Z","issue_id":"martian-todos-122.1","payload":{"status":"in_progress"}}
+{"type":"status_update","timestamp":"2026-02-05T22:50:35.529404Z","issue_id":"martian-todos-122.2","payload":{"status":"in_progress"}}
+{"type":"close","timestamp":"2026-02-05T22:52:15.621923Z","issue_id":"martian-todos-122.2","payload":{}}
+{"type":"close","timestamp":"2026-02-05T22:55:31.544296Z","issue_id":"martian-todos-122.1","payload":{}}
