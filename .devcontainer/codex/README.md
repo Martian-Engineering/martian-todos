@@ -6,6 +6,7 @@ This folder is consumed by `.devcontainer/postCreate.sh` to seed your container 
 - `.devcontainer/codex/skills/*` -> `~/.codex/skills/*`
 - `.devcontainer/codex/config.toml` -> `~/.codex/config.toml` (includes MCP server definitions)
 - `.devcontainer/codex/auth.json` -> `~/.codex/auth.json` (so Codex is already authenticated)
+- `.devcontainer/codex/maniple/config.json` -> `~/.maniple/config.json` (forces tmux backend in-container)
 
 These files are intentionally gitignored because they are user-specific.
 

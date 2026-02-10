@@ -5,4 +5,5 @@ AGENTS.md
 skills/
 config.toml
 auth.json
+maniple/
 *.bak-*

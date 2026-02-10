@@ -4,19 +4,21 @@ set -euo pipefail
 usage() {
   cat <<'USAGE'
 Usage:
-  scripts/devcontainer/sync_user_codex_assets.sh [--force] [--agents-from <path>] [--skills-from <dir>] [--config-from <path>] [--auth-from <path>]
+  scripts/devcontainer/sync_user_codex_assets.sh [--force] [--agents-from <path>] [--skills-from <dir>] [--config-from <path>] [--auth-from <path>] [--maniple-config-from <path>]
 
 Defaults (host-side):
   --agents-from  ~/.codex/AGENTS.md
   --skills-from  ~/.codex/skills
   --config-from  ~/.codex/config.toml
   --auth-from    ~/.codex/auth.json
+  --maniple-config-from  ~/.maniple/config.json
 
 Writes (into this repo, gitignored):
   .devcontainer/codex/AGENTS.md
   .devcontainer/codex/skills/<skill>/...
   .devcontainer/codex/config.toml
   .devcontainer/codex/auth.json
+  .devcontainer/codex/maniple/config.json
 USAGE
 }
 
@@ -77,6 +79,7 @@ main() {
   local skills_from="~/.codex/skills"
   local config_from="~/.codex/config.toml"
   local auth_from="~/.codex/auth.json"
+  local maniple_config_from="~/.maniple/config.json"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -86,6 +89,7 @@ main() {
       --skills-from) skills_from="${2:-}"; shift 2 ;;
       --config-from) config_from="${2:-}"; shift 2 ;;
       --auth-from) auth_from="${2:-}"; shift 2 ;;
+      --maniple-config-from) maniple_config_from="${2:-}"; shift 2 ;;
       *) die "unknown argument: $1" ;;
     esac
   done
@@ -94,6 +98,7 @@ main() {
   skills_from="$(expand_tilde "$skills_from")"
   config_from="$(expand_tilde "$config_from")"
   auth_from="$(expand_tilde "$auth_from")"
+  maniple_config_from="$(expand_tilde "$maniple_config_from")"
 
   local repo_root assets_dir agents_dst skills_dst
   repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -144,6 +149,22 @@ main() {
     echo "Wrote: $auth_dst"
   else
     echo "Note: auth not found at $auth_from; skipping."
+  fi
+
+  if [[ -f "$maniple_config_from" ]]; then
+    local maniple_cfg_dst_dir="$assets_dir/maniple"
+    local maniple_cfg_dst="$maniple_cfg_dst_dir/config.json"
+    mkdir -p "$maniple_cfg_dst_dir"
+    if [[ -e "$maniple_cfg_dst" || -L "$maniple_cfg_dst" ]]; then
+      if [[ "$force" != "1" ]]; then
+        die "destination exists (use --force): $maniple_cfg_dst"
+      fi
+      backup_path "$maniple_cfg_dst"
+    fi
+    cp "$maniple_config_from" "$maniple_cfg_dst"
+    echo "Wrote: $maniple_cfg_dst"
+  else
+    echo "Note: maniple config not found at $maniple_config_from; skipping."
   fi
 
   if [[ ! -d "$skills_from" ]]; then

@@ -13,10 +13,14 @@ SKILLS_DST_DIR="$CODEX_HOME/skills"
 CONFIG_DST="$CODEX_HOME/config.toml"
 AUTH_DST="$CODEX_HOME/auth.json"
 
+MANIPLE_HOME="${MANIPLE_HOME:-$HOME/.maniple}"
+MANIPLE_CONFIG_DST="$MANIPLE_HOME/config.json"
+
 AGENTS_SRC="$CODEX_ASSETS_DIR/AGENTS.md"
 SKILLS_SRC_DIR="$CODEX_ASSETS_DIR/skills"
 CONFIG_SRC="$CODEX_ASSETS_DIR/config.toml"
 AUTH_SRC="$CODEX_ASSETS_DIR/auth.json"
+MANIPLE_CONFIG_SRC="$CODEX_ASSETS_DIR/maniple/config.json"
 
 ts() { date +"%Y%m%d-%H%M%S"; }
 
@@ -58,6 +62,47 @@ ensure_tmux_installed() {
   echo "Installing tmux (required for maniple in-container)..."
   sudo apt-get update
   sudo apt-get install -y --no-install-recommends tmux
+}
+
+ensure_maniple_config() {
+  # Maniple defaults to an iTerm2 backend if not configured; in Linux containers it will try to call osascript
+  # and crash during MCP initialize. Force tmux backend in-container.
+  mkdir -p "$MANIPLE_HOME"
+
+  if [[ -f "$MANIPLE_CONFIG_DST" ]]; then
+    return 0
+  fi
+
+  if [[ -f "$MANIPLE_CONFIG_SRC" ]]; then
+    cp "$MANIPLE_CONFIG_SRC" "$MANIPLE_CONFIG_DST"
+    return 0
+  fi
+
+  cat >"$MANIPLE_CONFIG_DST" <<'JSON'
+{
+  "commands": {
+    "claude": "claude",
+    "codex": "codex"
+  },
+  "defaults": {
+    "agent_type": "codex",
+    "layout": "auto",
+    "skip_permissions": true,
+    "use_worktree": true
+  },
+  "events": {
+    "max_size_mb": 1,
+    "recent_hours": 24
+  },
+  "issue_tracker": {
+    "override": "pebbles"
+  },
+  "terminal": {
+    "backend": "tmux"
+  },
+  "version": 1
+}
+JSON
 }
 
 ensure_pb_installed() {
@@ -190,6 +235,7 @@ install_skills_if_present() {
 main() {
   ensure_uvx_installed
   ensure_tmux_installed
+  ensure_maniple_config
   ensure_pb_installed
   ensure_codex_installed
   install_agents_md_if_present
