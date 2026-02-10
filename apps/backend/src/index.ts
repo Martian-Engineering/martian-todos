@@ -1,4 +1,4 @@
-import Fastify from "fastify";
+import Fastify, { type FastifyError } from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import { config } from "./config.js";
@@ -48,7 +48,7 @@ async function buildServer() {
   await fastify.register(todoRoutes, { prefix: "/todos" });
 
   // Global error handler
-  fastify.setErrorHandler((error, request, reply) => {
+  fastify.setErrorHandler((error: FastifyError, request, reply) => {
     fastify.log.error(error);
 
     // Don't leak internal errors in production

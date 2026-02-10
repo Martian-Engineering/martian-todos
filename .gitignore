@@ -44,3 +44,6 @@ CLAUDE.local.md
 # pebbles local state
 .pebbles/sync-state.json
 .pebbles/last-touched
+
+# Local demo docs (script, pre-staged pagedrops)
+docs/

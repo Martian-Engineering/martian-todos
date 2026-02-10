@@ -1,0 +1,5 @@
+services:
+  postgres:
+    ports:
+      # Avoid clashing with a locally running Postgres on 5432.
+      - "5433:5432"

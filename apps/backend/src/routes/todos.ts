@@ -29,7 +29,7 @@ const ListTodosSchema = z.object({
 
 type ListTodosQuery = z.infer<typeof ListTodosSchema>;
 
-const SORT_COLUMN_MAP: Record<ListTodosQuery["sortBy"], string> = {
+const SORT_COLUMN_MAP: Record<ListTodosQuery["sortBy"], keyof Database["todos"]> = {
   createdAt: "created_at",
   updatedAt: "updated_at",
   dueDate: "due_date",

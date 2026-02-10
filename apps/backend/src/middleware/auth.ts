@@ -2,11 +2,12 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import type { JWTPayload } from "@martian-todos/shared";
 
 /**
- * Extends Fastify request with authenticated user info.
+ * Tells @fastify/jwt the shape of our JWT payload and decoded user.
  */
-declare module "fastify" {
-  interface FastifyRequest {
-    user?: JWTPayload;
+declare module "@fastify/jwt" {
+  interface FastifyJWT {
+    payload: JWTPayload;
+    user: JWTPayload;
   }
 }
 

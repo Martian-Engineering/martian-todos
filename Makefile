@@ -2,7 +2,8 @@
 #
 # Usage:
 #   make setup      # First-time setup
-#   make dev        # Start dev environment
+#   make dev        # Start dev environment (local node processes)
+#   make full       # Start full stack via Docker Compose
 #   make build      # Build everything
 
 .PHONY: setup build dev clean db-up db-down migrate seed rollback
