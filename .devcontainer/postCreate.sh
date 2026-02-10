@@ -2,6 +2,7 @@
 set -euo pipefail
 
 CODEX_VERSION="${CODEX_VERSION:-0.98.0}"
+CODEX_NPM_PREFIX="${CODEX_NPM_PREFIX:-$HOME/.local}"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CODEX_ASSETS_DIR="${CODEX_ASSETS_DIR:-$REPO_ROOT/.devcontainer/codex}"
@@ -32,6 +33,8 @@ ensure_codex_installed() {
     exit 1
   fi
 
+  mkdir -p "$CODEX_NPM_PREFIX/bin"
+
   if command -v codex >/dev/null 2>&1; then
     if codex --version 2>/dev/null | grep -q "codex-cli ${CODEX_VERSION}"; then
       return 0
@@ -39,7 +42,9 @@ ensure_codex_installed() {
   fi
 
   echo "Installing @openai/codex@${CODEX_VERSION}..."
-  sudo npm install -g "@openai/codex@${CODEX_VERSION}"
+  # Avoid sudo: devcontainers often configure sudo with a restricted PATH (secure_path),
+  # which makes `sudo npm ...` fail even when npm exists for the user.
+  npm install -g --prefix "$CODEX_NPM_PREFIX" "@openai/codex@${CODEX_VERSION}"
 }
 
 install_codex_file_if_present() {
