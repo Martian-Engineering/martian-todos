@@ -53,6 +53,24 @@ ensure_tmux_installed() {
   sudo apt-get install -y --no-install-recommends tmux
 }
 
+ensure_pb_installed() {
+  if command -v pb >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if ! command -v go >/dev/null 2>&1; then
+    echo "Installing Go (required to build pebbles/pb)..."
+    sudo apt-get update
+    sudo apt-get install -y --no-install-recommends golang-go ca-certificates
+  fi
+
+  local pebbles_version="${PEBBLES_VERSION:-latest}"
+  local pkg="github.com/martian-engineering/pebbles/cmd/pb@${pebbles_version}"
+
+  echo "Installing pebbles (pb) via: go install ${pkg}"
+  GOBIN="$HOME/.local/bin" go install "$pkg"
+}
+
 ensure_codex_installed() {
   if ! command -v npm >/dev/null 2>&1; then
     echo "error: npm not found; devcontainer should install Node via features." >&2
@@ -145,6 +163,7 @@ install_skills_if_present() {
 main() {
   ensure_uvx_installed
   ensure_tmux_installed
+  ensure_pb_installed
   ensure_codex_installed
   install_agents_md_if_present
   install_skills_if_present
