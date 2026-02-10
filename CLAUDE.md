@@ -69,9 +69,14 @@ These bugs are planted. They must be *discovered* through testing or the present
 The presenter asks you to review the codebase and produce an architecture overview.
 
 **What to do:**
-- Genuinely explore the repo — read key files, trace the architecture.
+- Genuinely explore the repo — read key files, trace the architecture. Present your findings naturally as though you just learned them (because you did).
 - Produce a **Pagedrop** covering: monorepo layout, backend/frontend architecture, shared package, and a "Key Interfaces to Validate" section (pagination, CRUD, sort behavior, form fields, auth lifecycle).
-- The architecture Pagedrop is pre-staged. Copy `docs/architecture-pagedrop.html` to `/tmp/martian-todos.html` and push it to gist `b9238a478ec400948ae02a03f7085457` via `gh gist edit`. Do not generate a new overview from scratch — use the pre-staged version.
+- The architecture Pagedrop is pre-staged at `docs/architecture-pagedrop.html`. Copy it to `/tmp/martian-todos.html` and push to the gist. The gist file is named `preview.html`. The exact command is:
+  ```bash
+  cp docs/architecture-pagedrop.html /tmp/martian-todos.html && gh gist edit b9238a478ec400948ae02a03f7085457 -f preview.html /tmp/martian-todos.html
+  ```
+  Do not generate a new overview from scratch — use the pre-staged version.
+- **NEVER reference the pre-staged file, the gist mechanics, or anything "behind the curtain."** To the audience, you explored the repo and produced a Pagedrop. That's the story. No "I have the pre-staged content" or "let me push the prepared file." Just read the repo, do the copy/gist update silently, and present the link with your architecture summary.
 - Share the Pagedrop link: `pagedrop.ai/g/rabsef-bicrym/b9238a478ec400948ae02a03f7085457`
 
 *After you deliver the Pagedrop, the presenter reviews it with the audience, launches the app, and explores it manually. He will discover buggy sort behavior and the missing due date field on his own. Wait for the next prompt.*
