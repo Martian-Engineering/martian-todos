@@ -9,9 +9,13 @@ CODEX_ASSETS_DIR="${CODEX_ASSETS_DIR:-$REPO_ROOT/.devcontainer/codex}"
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 AGENTS_DST="$CODEX_HOME/AGENTS.md"
 SKILLS_DST_DIR="$CODEX_HOME/skills"
+CONFIG_DST="$CODEX_HOME/config.toml"
+AUTH_DST="$CODEX_HOME/auth.json"
 
 AGENTS_SRC="$CODEX_ASSETS_DIR/AGENTS.md"
 SKILLS_SRC_DIR="$CODEX_ASSETS_DIR/skills"
+CONFIG_SRC="$CODEX_ASSETS_DIR/config.toml"
+AUTH_SRC="$CODEX_ASSETS_DIR/auth.json"
 
 ts() { date +"%Y%m%d-%H%M%S"; }
 
@@ -36,6 +40,26 @@ ensure_codex_installed() {
 
   echo "Installing @openai/codex@${CODEX_VERSION}..."
   sudo npm install -g "@openai/codex@${CODEX_VERSION}"
+}
+
+install_codex_file_if_present() {
+  local src="$1"
+  local dst="$2"
+  local label="$3"
+
+  if [[ ! -f "$src" ]]; then
+    echo "Codex bootstrap: no personal $label found at $src"
+    return 0
+  fi
+
+  mkdir -p "$CODEX_HOME"
+
+  if [[ -f "$dst" ]] && cmp -s "$src" "$dst"; then
+    return 0
+  fi
+
+  backup_path "$dst"
+  cp "$src" "$dst"
 }
 
 install_agents_md_if_present() {
@@ -91,6 +115,9 @@ main() {
   ensure_codex_installed
   install_agents_md_if_present
   install_skills_if_present
+  install_codex_file_if_present "$CONFIG_SRC" "$CONFIG_DST" "config.toml"
+  install_codex_file_if_present "$AUTH_SRC" "$AUTH_DST" "auth.json"
+  chmod 600 "$AUTH_DST" 2>/dev/null || true
 
   echo "Codex bootstrap complete."
   echo "  Codex: $(command -v codex || true)"
