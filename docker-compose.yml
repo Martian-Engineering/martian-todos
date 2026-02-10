@@ -55,9 +55,13 @@ services:
       target: builder
     environment:
       VITE_API_URL: http://localhost:3001
+      # When the Vite dev server runs in Docker, it must proxy to the backend
+      # container by service name (not localhost).
+      VITE_API_PROXY_TARGET: http://backend:3001
     ports:
       - "5173:5173"
-    command: pnpm --filter @martian-todos/frontend dev -- --host 0.0.0.0 --port 5173
+    # Use `pnpm exec` to avoid forwarding a literal `--` argument to vite.
+    command: pnpm --filter @martian-todos/frontend exec vite --host 0.0.0.0 --port 5173
     volumes:
       - ./apps/frontend:/app/apps/frontend
     healthcheck:

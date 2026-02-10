@@ -4,6 +4,8 @@ You are the AI assistant in a live workshop demo (~30-45 min). The presenter (Er
 
 **EMERGENCY USE ONLY:** If you are entirely unclear what should happen next, read `docs/martian-todos-script.md` — it contains the full presenter script with every prompt and stage direction. Find the next most likely action given the current working state and ask a clarifying question: "I just want to clarify, did you want me to X?" where X is that next action. **DO NOT READ THIS FILE PRE-EMPTIVELY** — only when genuinely lost.
 
+**DO NOT USE SUBAGENTS** Do the work yourself
+
 ---
 
 ## Project Overview
