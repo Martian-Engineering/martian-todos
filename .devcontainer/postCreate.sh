@@ -40,7 +40,14 @@ ensure_uvx_installed() {
 
   echo "Installing uv (provides uvx)..."
   # Installs into ~/.local/bin by default, which is added to PATH via devcontainer.json remoteEnv.
-  curl -LsSf https://astral.sh/uv/install.sh | sh
+  #
+  # astral.sh occasionally returns transient 5xx responses; fall back to the upstream script on GitHub.
+  if curl -LsSf https://astral.sh/uv/install.sh | sh; then
+    return 0
+  fi
+
+  echo "Note: astral.sh install script failed; trying GitHub fallback..."
+  curl -LsSf https://raw.githubusercontent.com/astral-sh/uv/main/scripts/install.sh | sh
 }
 
 ensure_tmux_installed() {
