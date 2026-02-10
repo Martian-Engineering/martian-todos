@@ -71,11 +71,31 @@ ensure_pb_installed() {
     sudo apt-get install -y --no-install-recommends golang-go ca-certificates
   fi
 
-  local pebbles_version="${PEBBLES_VERSION:-latest}"
-  local pkg="github.com/martian-engineering/pebbles/cmd/pb@${pebbles_version}"
+  local pebbles_version="${PEBBLES_VERSION:-v0.8.0}"
+  if [[ "$pebbles_version" != v* ]]; then
+    pebbles_version="v${pebbles_version}"
+  fi
 
-  echo "Installing pebbles (pb) via: go install ${pkg}"
-  GOBIN="$HOME/.local/bin" go install "$pkg"
+  mkdir -p "$HOME/.local/bin"
+
+  # `go install github.com/martian-engineering/pebbles/...` fails because the module path in go.mod is `pebbles`.
+  # Build from the tag source tarball instead.
+  local tmpdir tgz srcdir
+  tmpdir="$(mktemp -d)"
+  tgz="$tmpdir/pebbles.tgz"
+
+  echo "Installing pebbles (pb) from source tag: ${pebbles_version}"
+  curl -fsSL "https://github.com/martian-engineering/pebbles/archive/refs/tags/${pebbles_version}.tar.gz" -o "$tgz"
+
+  tar -xzf "$tgz" -C "$tmpdir"
+  srcdir="$(find "$tmpdir" -mindepth 1 -maxdepth 1 -type d -name 'pebbles-*' | head -n 1)"
+  if [[ -z "${srcdir:-}" ]]; then
+    echo "error: could not find extracted pebbles source directory" >&2
+    exit 1
+  fi
+
+  (cd "$srcdir" && GOTOOLCHAIN=auto go build -o "$HOME/.local/bin/pb" ./cmd/pb)
+  rm -rf "$tmpdir"
 }
 
 ensure_codex_installed() {
