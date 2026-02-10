@@ -3,21 +3,50 @@ import type { Todo, PaginatedResponse, CreateTodoInput, UpdateTodoInput } from "
 const API_BASE = "/api";
 
 /**
+ * Refresh callback type, set by the app when auth initializes.
+ * Returns a fresh access token or null if refresh failed.
+ */
+type RefreshFn = () => Promise<string | null>;
+
+let _refreshAccessToken: RefreshFn | null = null;
+
+/**
+ * Registers the token refresh function so apiFetch can retry on 401.
+ * Called once from App when the auth hook mounts.
+ */
+export function setRefreshHandler(fn: RefreshFn): void {
+  _refreshAccessToken = fn;
+}
+
+/**
  * Base fetch wrapper with auth header.
+ * Automatically retries once on 401 by refreshing the access token.
  */
 async function apiFetch<T>(
   endpoint: string,
   token: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      ...options.headers,
-    },
-  });
+  const doFetch = async (accessToken: string) => {
+    return fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        ...options.headers,
+      },
+    });
+  };
+
+  let response = await doFetch(token);
+
+  // On 401, attempt a single token refresh and retry the request.
+  if (response.status === 401 && _refreshAccessToken) {
+    const newToken = await _refreshAccessToken();
+    if (newToken) {
+      response = await doFetch(newToken);
+    }
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: { message: "Request failed" } }));

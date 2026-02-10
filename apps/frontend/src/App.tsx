@@ -12,7 +12,7 @@ import { KeyboardShortcuts } from "./components/KeyboardShortcuts";
 import { LoginForm } from "./components/LoginForm";
 import { TodoList } from "./components/TodoList";
 import { useAuth } from "./hooks/useAuth";
-import { createTodo, deleteTodo, fetchTodos, updateTodo } from "./api/todos";
+import { createTodo, deleteTodo, fetchTodos, updateTodo, setRefreshHandler } from "./api/todos";
 
 const SHORTCUTS = [
   { keys: "N", label: "Focus new todo" },
@@ -46,7 +46,7 @@ function matchesSearch(todo: Todo, query: string): boolean {
   const needle = query.toLowerCase();
   return (
     todo.title.toLowerCase().includes(needle) ||
-    todo.description?.toLowerCase().includes(needle)
+    (todo.description?.toLowerCase().includes(needle) ?? false)
   );
 }
 
@@ -118,7 +118,12 @@ function isEditableTarget(event: KeyboardEvent): boolean {
  * Handles authentication state and renders appropriate UI.
  */
 function App() {
-  const { token, user, login, logout } = useAuth();
+  const { token, user, login, logout, refreshAccessToken } = useAuth();
+
+  // Register the refresh handler so apiFetch can auto-retry on 401.
+  useEffect(() => {
+    setRefreshHandler(refreshAccessToken);
+  }, [refreshAccessToken]);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
