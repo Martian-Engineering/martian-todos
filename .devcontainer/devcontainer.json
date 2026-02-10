@@ -1,0 +1,11 @@
+{
+  "name": "Martian Todos (Codex bootstrap)",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    }
+  },
+  "remoteUser": "vscode",
+  "postCreateCommand": "bash .devcontainer/postCreate.sh"
+}

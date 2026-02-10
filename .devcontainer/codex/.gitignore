@@ -1,0 +1,6 @@
+# Personal Codex assets for devcontainer bootstrap.
+#
+# These are intentionally NOT committed.
+AGENTS.md
+skills/
+*.bak-*
