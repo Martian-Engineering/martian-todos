@@ -27,6 +27,32 @@ backup_path() {
   fi
 }
 
+ensure_uvx_installed() {
+  if command -v uvx >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if ! command -v curl >/dev/null 2>&1; then
+    echo "Installing curl (required to install uv/uvx)..."
+    sudo apt-get update
+    sudo apt-get install -y --no-install-recommends curl ca-certificates
+  fi
+
+  echo "Installing uv (provides uvx)..."
+  # Installs into ~/.local/bin by default, which is added to PATH via devcontainer.json remoteEnv.
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+}
+
+ensure_tmux_installed() {
+  if command -v tmux >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "Installing tmux (required for maniple in-container)..."
+  sudo apt-get update
+  sudo apt-get install -y --no-install-recommends tmux
+}
+
 ensure_codex_installed() {
   if ! command -v npm >/dev/null 2>&1; then
     echo "error: npm not found; devcontainer should install Node via features." >&2
@@ -117,6 +143,8 @@ install_skills_if_present() {
 }
 
 main() {
+  ensure_uvx_installed
+  ensure_tmux_installed
   ensure_codex_installed
   install_agents_md_if_present
   install_skills_if_present
